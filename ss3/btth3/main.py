@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 app = FastAPI()
 
 books = [
@@ -8,10 +9,7 @@ books = [
         "author": "Lê Minh Thu",
         "category": "programming",
         "year": 2022,
-        "is_available": True,
-        "total_books": 6,
-        "available_books": 4,
-        "borrowed_books": 2
+        "is_available": True
     },
     {
         "id": 2,
@@ -19,10 +17,7 @@ books = [
         "author": "Phạm Lan Hồng",
         "category": "web",
         "year": 2021,
-        "is_available": False,
-        "total_books": 4,
-        "available_books": 2,
-        "borrowed_books": 6
+        "is_available": False
     },
     {
         "id": 3,
@@ -30,10 +25,7 @@ books = [
         "author": "Lê Minh Huyền",
         "category": "database",
         "year": 2020,
-        "is_available": True,
-        "total_books": 6,
-        "available_books": 2,
-        "borrowed_books": 4
+        "is_available": True
     },
     {
         "id": 4,
@@ -41,10 +33,7 @@ books = [
         "author": "Lê Ánh Linh",
         "category": "programming",
         "year": 2008,
-        "is_available": False,
-        "total_books": 7,
-        "available_books": 5,
-        "borrowed_books": 3
+        "is_available": False
     },
     {
         "id": 5,
@@ -52,29 +41,49 @@ books = [
         "author": "Vũ Hồng Vân",
         "category": "network",
         "year": 2019,
-        "is_available": True,
-        "total_books": 5,
-        "available_books": 3,
-        "borrowed_books": 7
+        "is_available": True
     }
 ]
 
-@app.get("/books/available")
-def get_books_avai():
-    avai_books = []
+@app.get("/books/statistics")
+def get_statistics():
+    total_books = len(books)
+    available_books = 0
+    borrowed_books = 0
 
     for book in books:
-        if book["is_available"] == True:
-            avai_books.append(book)
+        if book["is_available"]:
+            available_books += 1
+        else:
+            borrowed_books += 1
 
-    return avai_books
+    return {
+        "total_books": total_books,
+        "available_books": available_books,
+        "borrowed_books": borrowed_books
+    }
 
-@app.get("/books/borrowed")
-def get_books_borrowed():
-    borrowed_books = []
+
+@app.get("/books/categories")
+def get_categories():
+    categories = []
 
     for book in books:
-        if book["is_available"] == False:
-            borrowed_books.append(book)
+        if book["category"] not in categories:
+            categories.append(book["category"])
 
-    return borrowed_books
+    return {"categories": categories}
+
+
+@app.get("/books/latest")
+def get_latest_book():
+    if len(books) == 0:
+        return {"message": "No books available"}
+
+    latest_book = books[0]
+
+    for book in books:
+        if book["year"] > latest_book["year"]:
+            latest_book = book
+
+    return latest_book
